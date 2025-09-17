@@ -1,0 +1,12 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+column_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'variety']
+df = pd.read_csv(r'iris.csv', header=None, names=column_names)
+df.head(150)
+df.shape
+df.loc[df["variety"]=='Setosa']
+df_Setosa=df.loc[df['variety']=='Iris-setosa']
+df_Virginica=df.loc[df['variety']=='Iris-virginica']
+df_Versicolor=df.loc[df['variety']=='Iris-versicolor']
