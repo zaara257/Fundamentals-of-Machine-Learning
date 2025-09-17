@@ -1,0 +1,45 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+data = pd.read_csv('headbrain.csv')
+x = np.array(data['Head Size(cm^3)'])
+y = np.array(data['Brain Weight(grams)'])
+
+print("Head Sizes:", x[:5])
+print("Brain Weights:", y[:5])
+
+def get_line(x, y):
+  x_m, y_m = np.mean(x), np.mean(y)
+  print("Mean Head Size:", x_m)
+  print("Mean Brain Weight:", y_m)
+  x_d, y_d = x - x_m, y - y_m
+  m = np.sum(x_d * y_d) / np.sum(x_d ** 2)
+  c = y_m - m * x_m
+  print("Slope (m):", m)
+  print("Intercept (c):", c)
+  return lambda x : m*x+c
+lin = get_line(x, y)
+X = np.linspace(np.min(x)-100, np.max(x)+100, 1000)
+Y = np.array([lin(x) for x in X])
+plt.plot(X, Y, color='red', label='Regression Line')
+plt.scatter(X,Y, color='green', label='Data Points')
+
+plt.xlabel('Head Size (cm^3)')
+plt.ylabel('Brain Weight (grams)')
+plt.title('Head Size vs Brain Weight')
+plt.legend()
+plt.show()
+def get_error(line_func, x, y):
+  y_mean = np.mean(y)
+  y_pred = np.array([line_func(val) for val in x])
+  ss_total = np.sum((y - y_mean) ** 2)
+  ss_residual = np.sum((y - y_pred) ** 2)
+  r_squared = 1 - (ss_residual / ss_total)
+  return r_squared
+r2 = get_error(lin, x, y)
+print("R² Score:", r2)
+from sklearn.linear_model import LinearRegression
+x = x.reshape((len(x),1))
+reg=LinearRegression()
+reg=reg.fit(x, y)
+print(reg.score(x, y))
