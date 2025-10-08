@@ -1,0 +1,94 @@
+import pandas as pd
+import numpy as np
+from numpy import log, dot, exp, shape
+from sklearn.metrics import confusion_matrix
+
+data = pd.read_csv('suv_data.csv')
+print(data.head())
+
+x = data.iloc[:, [2, 3]].values
+y = data.iloc[:, 4].values
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.10, random_state=0)
+
+def standardize(X_tr):
+    for i in range(shape(X_tr)[1]):
+        X_tr[:, i] = (X_tr[:, i] - np.mean(X_tr[:, i])) / np.std(X_tr[:, i])
+
+standardize(x_train)
+standardize(x_test)
+
+print(x_train[0:10, :])
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(random_state=0)
+classifier.fit(x_train, y_train)
+
+y_pred = classifier.predict(x_test)
+print(y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix : \n", cm)
+
+from sklearn.metrics import accuracy_score
+print("Accuracy : ", accuracy_score(y_test, y_pred))
+
+def F1_score(y, y_hat):
+    tp, tn, fp, fn = 0, 0, 0, 0
+    for i in range(len(y)):
+        if y[i] == 1 and y_hat[i] == 1:
+            tp += 1
+        elif y[i] == 1 and y_hat[i] == 0:
+            fn += 1
+        elif y[i] == 0 and y_hat[i] == 1:
+            fp += 1
+        elif y[i] == 0 and y_hat[i] == 0:
+            tn += 1
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    if precision + recall == 0:
+        return 0
+    return 2 * precision * recall / (precision + recall)
+
+class LogisticRegressionCustom:
+    def sigmoid(self, z):
+        return 1 / (1 + exp(-z))
+
+    def initialize(self, X):
+        weights = np.zeros((shape(X)[1] + 1, 1))
+        X = np.c_[np.ones((shape(X)[0], 1)), X]
+        return weights, X
+
+    def fit(self, X, y, alpha=0.001, iter=400):
+        weights, X = self.initialize(X)
+        y = y.reshape(-1, 1)
+
+        def cost(theta):
+            z = dot(X, theta)
+            cost0 = y.T.dot(log(self.sigmoid(z)))
+            cost1 = (1 - y).T.dot(log(1 - self.sigmoid(z)))
+            return -((cost0 + cost1) / len(y))
+
+        cost_list = np.zeros(iter,)
+        for i in range(iter):
+            weights = weights - alpha * dot(X.T, self.sigmoid(dot(X, weights)) - y)
+            cost_list[i] = cost(weights)
+
+        self.weights = weights
+        return cost_list
+
+    def predict(self, X):
+        X = np.c_[np.ones((shape(X)[0], 1)), X]
+        z = dot(X, self.weights)
+        prob = self.sigmoid(z)
+        return [1 if i > 0.5 else 0 for i in prob]
+
+obj1 = LogisticRegressionCustom()
+model = obj1.fit(x_train, y_train)
+
+y_pred_custom_test = obj1.predict(x_test)
+y_pred_custom_train = obj1.predict(x_train)
+
+print("Custom Logistic Regression F1 Score (Train):", F1_score(y_train, y_pred_custom_train))
+print("Custom Logistic Regression F1 Score (Test):", F1_score(y_test, y_pred_custom_test))
