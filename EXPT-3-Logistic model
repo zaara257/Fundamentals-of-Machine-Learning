@@ -92,3 +92,6 @@ y_pred_custom_train = obj1.predict(x_train)
 
 print("Custom Logistic Regression F1 Score (Train):", F1_score(y_train, y_pred_custom_train))
 print("Custom Logistic Regression F1 Score (Test):", F1_score(y_test, y_pred_custom_test))
+conf_mat = confusion_matrix(y_test, y_pred) 
+accuracy = (conf_mat[0, 0] + conf_mat[1, 1]) / sum(sum(conf_mat)) 
+print("Accuracy is:", accuracy)
