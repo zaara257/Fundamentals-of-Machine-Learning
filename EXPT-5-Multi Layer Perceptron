@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+bnotes = pd.read_csv('bank_note_data.csv')
+bnotes.head(10)
+x = bnotes.drop('class',axis=1)
+y = bnotes['class']
+print(x.head(2))
+print(y.head(2))
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2)
+from sklearn.neural_network import MLPClassifier
+mlp = MLPClassifier(max_iter=500,activation='relu')
+mlp.fit(x_train,y_train)
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
+mlp = MLPClassifier(max_iter=500,activation='logistic')
+mlp.fit(x_train,y_train)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
+mlp = MLPClassifier(max_iter=500,activation='tanh')
+mlp.fit(x_train,y_train)
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report, confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
+mlp = MLPClassifier(max_iter=500,activation='identity')
+mlp.fit(x_train,y_train)
+MLPClassifier(activation='identity', max_iter=500)
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.3)
+from sklearn.neural_network import MLPClassifier
+mlp = MLPClassifier(max_iter=500,activation='relu')
+mlp.fit(x_train,y_train)
+MLPClassifier(max_iter=500)
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
+mlp = MLPClassifier(max_iter=500,activation='logistic')
+mlp.fit(x_train,y_train)
+MLPClassifier(max_iter=500,activation='logistic')
+pred = mlp.predict(x_test)
+print(pred)
+MLPClassifier(max_iter=500,activation='tanh')
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+mlp = MLPClassifier(max_iter=500,activation='tanh')
+mlp.fit(x_train,y_train)
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+
+mlp = MLPClassifier(max_iter=500,activation='identity')
+mlp.fit(x_train,y_train)
+MLPClassifier(max_iter=500,activation='identity')
+pred = mlp.predict(x_test)
+print(pred)
+from sklearn.metrics import classification_report,confusion_matrix
+confusion_matrix(y_test,pred)
+print(classification_report(y_test,pred))
