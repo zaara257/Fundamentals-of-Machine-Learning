@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import accuracy_score
+from scipy.stats import mode
+
+# Load and scale the two most discriminative features
+iris = load_iris()
+X = iris.data[:, 2:4]  # Petal length and petal width
+y_true = iris.target
+X_scaled = StandardScaler().fit_transform(X)
+
+# Apply K-Means with optimized parameters
+kmeans = KMeans(n_clusters=3, init='k-means++', n_init=50, max_iter=500, random_state=42)
+kmeans.fit(X_scaled)
+labels = kmeans.labels_
+
+# Align cluster labels with true labels
+def align_labels(true_labels, cluster_labels):
+  label_map = {}
+  for i in np.unique(cluster_labels):
+    mask = cluster_labels == i
+    most_common = mode(true_labels[mask], keepdims=True)[0][0]
+    label_map[i] = most_common
+  aligned = np.vectorize(label_map.get)(cluster_labels)
+  return aligned.astype(int)
+
+
+aligned_labels = align_labels(y_true, labels)
+accuracy = accuracy_score(y_true, aligned_labels) * 100
+sample_preds = [np.float64(aligned_labels[i]) for i in range(3)]
+
+# Plot clusters and centers
+centers = kmeans.cluster_centers_
+plt.figure(figsize=(8, 6))
+colors = ['red', 'green', 'blue']
+for i in range(3):
+  plt.scatter(X_scaled[labels == i, 0], X_scaled[labels == i, 1], s=50, c=colors[i], label=f'Cluster {i}')
+  plt.scatter(centers[:, 0], centers[:, 1], s=200, c='yellow', marker='X', label='Centers')
+  plt.title('K-Means Clustering on Iris Dataset (Petal Features)')
+  plt.xlabel('Petal Length (scaled)')
+  plt.ylabel('Petal Width (scaled)')
+  plt.legend()
+  plt.grid(True)
+  plt.show()
+
+# Output results
+print(f"Predictions: {sample_preds}")
+print(f"Accuracy: {accuracy:.2f} %")
